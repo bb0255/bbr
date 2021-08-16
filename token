@@ -1,0 +1,25 @@
+public  static String getAuthToken(String clientId, String client_secret,
+                                      String resource, String token_url ) {
+        String autheticationToken = null;
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+            map.add("client_id", clientId);
+            map.add("client_secret", client_secret);
+            map.add("resource", resource);
+            map.add("grant_type", "client_credentials");
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+            ResponseEntity<String> exchange = restTemplate.exchange(token_url, HttpMethod.POST, entity, String.class);
+            System.out.println(exchange.getStatusCode());
+            System.out.println(exchange.getBody());
+            String responseObj = exchange.getBody();
+            autheticationToken = JsonParser.parseString(responseObj).getAsJsonObject().get("access_token").getAsString();
+        }catch (Exception e) {
+            e.printStackTrace();
+            log.error(String.format(" error while retrieving token  {%s}", autheticationToken));
+        }
+        return  autheticationToken;
+    }
